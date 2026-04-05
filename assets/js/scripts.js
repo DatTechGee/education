@@ -20,6 +20,36 @@ Version      : 1.0
 			$(".mobile_menu").simpleMobileMenu({			
 				"menuStyle": "slide"
 			});
+
+			function anchorMobileMenuTrigger() {
+				var trigger = $('#sm_menu_ham');
+				var navRow = $('#navigation .row').first();
+
+				if (!trigger.length || !navRow.length) {
+					return;
+				}
+
+				if (!$.contains(navRow[0], trigger[0])) {
+					navRow.append(trigger);
+				}
+			}
+
+			function ensureMobileMenuTriggerClick() {
+				var trigger = $('#sm_menu_ham');
+				if (!trigger.length || trigger.data('copilotToggleBound')) {
+					return;
+				}
+
+				trigger.off('click').on('click', function (event) {
+					event.preventDefault();
+					trigger.toggleClass('open');
+					$('.sm_menu_outer').toggleClass('active').find('li.active').removeClass('active');
+					$('body').toggleClass('mmactive');
+				});
+
+				trigger.data('copilotToggleBound', true);
+			}
+
 			function handleStickyNavigation() {
 				var isDesktop = $(window).width() > 960;
 				var shouldStick = $(window).scrollTop() > 70;
@@ -36,7 +66,13 @@ Version      : 1.0
 				}
 			}
 
-			$(window).on('scroll resize', handleStickyNavigation);
+			$(window).on('scroll resize', function () {
+				anchorMobileMenuTrigger();
+				ensureMobileMenuTriggerClick();
+				handleStickyNavigation();
+			});
+			anchorMobileMenuTrigger();
+			ensureMobileMenuTriggerClick();
 			handleStickyNavigation();
 		/*END MENU JS*/
 		

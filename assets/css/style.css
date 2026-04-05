@@ -4334,6 +4334,10 @@ background: #072032;
 	min-height: 56px;
 }
 
+#navigation .container {
+	position: relative;
+}
+
 #navigation .col-20,
 #navigation .col-60 {
 	float: none;
@@ -4372,7 +4376,13 @@ background: #072032;
 }
 
 .sm_menu_outer {
+	z-index: -1;
+	pointer-events: none;
+}
+
+.sm_menu_outer.active {
 	z-index: 10000;
+	pointer-events: auto;
 }
 
 .sm_menu_outer .mobile_menu a {
@@ -4592,7 +4602,7 @@ background: #072032;
 		max-width: 100%;
 	}
 
-	#sm_menu_ham {
+	#navigation #sm_menu_ham {
 		position: absolute !important;
 		z-index: 10001;
 		right: 14px !important;
@@ -4600,6 +4610,9 @@ background: #072032;
 		left: auto !important;
 		float: none !important;
 		margin: 0;
+		pointer-events: auto;
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: transparent;
 		transform: translateY(-50%);
 	}
 
@@ -4627,7 +4640,7 @@ background: #072032;
 		width: 106px;
 	}
 
-	#sm_menu_ham {
+	#navigation #sm_menu_ham {
 		right: 12px !important;
 	}
 
