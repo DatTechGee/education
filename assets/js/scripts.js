@@ -20,13 +20,24 @@ Version      : 1.0
 			$(".mobile_menu").simpleMobileMenu({			
 				"menuStyle": "slide"
 			});
-			$(window).on('scroll', function(){
-				if ( $(window).scrollTop() > 70 ) {
+			function handleStickyNavigation() {
+				var isDesktop = $(window).width() > 960;
+				var shouldStick = $(window).scrollTop() > 70;
+
+				if (!isDesktop) {
+					$('.site-navigation, .header-white, .header').removeClass('navbar-fixed');
+					return;
+				}
+
+				if (shouldStick) {
 					$('.site-navigation, .header-white, .header').addClass('navbar-fixed');
 				} else {
 					$('.site-navigation, .header-white, .header').removeClass('navbar-fixed');
 				}
-			});	
+			}
+
+			$(window).on('scroll resize', handleStickyNavigation);
+			handleStickyNavigation();
 		/*END MENU JS*/
 		
 		/*START VIDEO JS*/

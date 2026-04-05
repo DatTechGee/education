@@ -12,11 +12,31 @@ var localStorageKey = 'studyBlogComments:' + postKey;
 var status = document.createElement('div');
 status.className = 'comment-status';
 status.setAttribute('aria-live', 'polite');
+status.setAttribute('role', 'status');
 form.appendChild(status);
+
+function getInitials(name) {
+var cleanName = String(name || '').trim();
+if (!cleanName) {
+return 'A';
+}
+
+var parts = cleanName.split(/\s+/).slice(0, 2);
+return parts.map(function (part) {
+return part.charAt(0).toUpperCase();
+}).join('');
+}
 
 function createComment(comment) {
 var wrap = document.createElement('div');
 wrap.className = 'single_comment';
+
+var avatar = document.createElement('div');
+avatar.className = 'single_comment_avatar';
+avatar.textContent = getInitials(comment.name);
+
+var content = document.createElement('div');
+content.className = 'single_comment_content';
 
 var title = document.createElement('h4');
 title.textContent = comment.name || 'Anonymous';
@@ -24,8 +44,10 @@ title.textContent = comment.name || 'Anonymous';
 var body = document.createElement('p');
 body.textContent = comment.message || '';
 
-wrap.appendChild(title);
-wrap.appendChild(body);
+content.appendChild(title);
+content.appendChild(body);
+wrap.appendChild(avatar);
+wrap.appendChild(content);
 return wrap;
 }
 
@@ -52,11 +74,26 @@ list.appendChild(createComment(comment));
 function showStatus(message, type) {
 status.textContent = message;
 status.className = 'comment-status is-' + type;
+status.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
+status.setAttribute('role', type === 'error' ? 'alert' : 'status');
 
 window.setTimeout(function () {
 status.textContent = '';
 status.className = 'comment-status';
+status.setAttribute('aria-live', 'polite');
+status.setAttribute('role', 'status');
 }, 3500);
+}
+
+function getServerErrorMessage(response) {
+return response.json().then(function (data) {
+if (data && data.error) {
+throw new Error(String(data.error));
+}
+throw new Error('Unable to complete this request right now.');
+}, function () {
+throw new Error('Unable to complete this request right now.');
+});
 }
 
 function loadComments() {
@@ -72,7 +109,7 @@ headers: {
 })
 .then(function (response) {
 if (!response.ok) {
-throw new Error('Unable to load comments from server');
+return getServerErrorMessage(response);
 }
 return response.json();
 })
@@ -85,6 +122,7 @@ renderComments(loadLocalComments());
 })
 .catch(function () {
 renderComments(loadLocalComments());
+showStatus('Could not load comments from server. Showing locally saved comments.', 'warning');
 });
 }
 
@@ -126,7 +164,7 @@ body: JSON.stringify(newComment)
 })
 .then(function (response) {
 if (!response.ok) {
-throw new Error('Unable to save comment on server');
+return getServerErrorMessage(response);
 }
 return response.json();
 })
@@ -143,7 +181,7 @@ showStatus('Comment posted successfully.', 'success');
 saveLocalComment(newComment);
 list.appendChild(createComment(newComment));
 form.reset();
-showStatus('Comment posted locally. It will sync when server is available.', 'warning');
+showStatus(' your comment was saved .', 'success');
 });
 });
 
